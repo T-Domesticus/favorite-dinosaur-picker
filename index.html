@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="icon" href="t rex-stan-skull.png">
+<meta name="viewport" content="initial-scale=1.0">
+<title>Favorite Dinosaur Picker</title>
+<style>
+body {
+    background:#000;
+    color:#FFF;
+    font-family:verdana, sans-serif;
+    font-size:10pt;
+    margin:0;
+    padding:10px;
+}
+
+a:link, a:visited {
+    color:#008;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+a:active, a:hover {
+    color:#ACF;
+}
+
+.info {
+    font-weight:bold;
+}
+
+button {
+    font-family:inherit;
+    cursor:pointer;
+    border:0;
+    border-radius:3px;
+    padding:0.3em 0.5em;
+    background:#CCC;
+    color:#000;
+}
+
+button:hover {
+    background:#DDD;
+}
+
+button.disabled {
+    background:#DDD;
+    color:#888;
+    cursor:not-allowed;
+}
+
+button.disabled:hover {
+    background:#DDD;
+}
+
+#container {
+    position:relative;
+    margin-left:-10px;
+    margin-right:-10px;
+    padding:10px;
+    overflow:hidden;
+}
+
+@media (min-width:1024px) {
+    /* Put the found favorites beside the picking div when the window is sufficiently large */
+    #picking {
+        float:left;
+        width:636px;
+    }
+
+    #secondary {
+        margin-left:646px;
+    }
+}
+
+@media (min-width:1300px) {
+    /* Once we get to the point where 636px is less than half of the width of the screen, make the picking div just take up half */
+    #picking {
+        width:50%;
+    }
+
+    #secondary {
+        margin-left:51%;
+    }
+}
+
+#pick {
+    background:#58F;
+    color:#FFF;
+    font-size:larger;
+    font-weight:bold;
+    width:6em;
+    border-radius:5px;
+    margin-right:10px;
+}
+
+#pick.disabled {
+    background:#ACF;
+}
+
+#pick:hover {
+    background:#ACF;
+}
+
+.item-list {
+    padding:0;
+    list-style-type:none;
+    line-height:100px;
+}
+
+.item-list li {
+    margin:0;
+    display:inline-block;
+    height:100px;
+    width:100px;
+    line-height:100px;
+    border:3px solid transparent;
+    text-align:center;
+    position:relative;
+    vertical-align:top;
+    overflow:hidden;
+    border-radius:100%;
+    background:#F7F7F7;
+    color:#000;
+}
+
+.item-list li img {
+    vertical-align:middle;
+    max-height:100%;
+    max-width:100%;
+}
+
+.item-list li span {
+    display:inline-block;
+    vertical-align:middle;
+    line-height:1.2;
+}
+
+@media (max-width:636px) {
+    .item-list {
+        line-height:75px;
+    }
+
+    .item-list li {
+        line-height:75px;
+        height:75px;
+        width:75px;
+    }
+}
+
+@media (max-width:423px) {
+    .item-list {
+        line-height:50px;
+    }
+
+    .item-list li {
+        line-height:50px;
+        height:50px;
+        width:50px;
+    }
+}
+
+#evaluating li {
+    cursor:pointer;
+}
+
+#favorites li {
+    cursor:move;
+}
+
+.item-list li:hover {
+    background:#CDF;
+}
+
+.item-list.sorting li:hover {
+    background:#F7F7F7;
+}
+
+#evaluating li.selected {
+    border:3px solid #7AC;
+}
+
+#evaluating, #buttons {
+    text-align:center;
+    margin:auto;
+}
+
+#evaluating li.notice {
+    width:auto;
+    height:auto;
+    max-width:260px;
+    margin:auto;
+    background:#F7F7F7;
+    border-radius:10px;
+    padding:30px 30px;
+    color:#000;
+    text-align:center;
+    line-height:1.4;
+    cursor:auto;
+    font-size:10pt;
+}
+
+#buttons {
+    margin-top:30px;
+    position:relative;
+    z-index:3;
+}
+</style>
+</head>
+<body>
+<h1>Favorite Dinosaur Picker</h1>
+
+<p>With 250+ species represented, find out which dinosaur is your favorite, your second favorite, and so on. To reveal a dinosaur's name, hover over its icon.</p>
+
+<p>For each group of dinosaurs presented to you, click one or more of your favorites from that group and press the "Pick" button. Eventually, your favorite dinosaurs will start appearing under "Found Favorites". </p>
+
+<p>You can continue as long as you like to construct an arbitrarily long list of your favorite dinosaurs; you can also reorder your favorites after you've found them. </p>
+
+<p> Birds are not included in this list, save for a select few Mesozoic avialians. Non-dinosaurs like pterosaurs and plesiosaurs are also excluded.
+
+<p>Skeletal drawings by, respectively: Mark Witton, Gregory S. Paul, Ashley Patch, Henrique Paes, Jaime A. Headden, Ville Sinkkonen, Franoys, Henry Sharpe, Dan Folkes, Ilya Sadykov, Lukas Panzarin, Sankar Chatterjee, S. M. Clabby, Norbert Frotzler, Gabriel Ugueto, J. González, Joseph Shanks, Felipe Elias, Andrey Atuchin, Adam Yates, Julius Csotonyi, Daniel Dufault, Sergey Krasovskiy, Maurissauro, Franz-Josef73, GunnarBivens, GetAwayTrike, Paleocolour, PaleoNeolitic, SomniosusWarrior, ornithischophilia, ijreid, lythronax-argestes, cisiopurple, SmallMicroraptor, DaCaTaraptor, Crizz30, PaleoPortfolio, IJReid, paleofile, Vinther et al. 2016, Hu et al. 2009, Xu et al. 2001, 2002, 2007, Godefroit et al. 2003, Pu, H.; Kobayashi, Y.; Lü, J.; Xu, L.; Wu, Y.; Chang, H.; Zhang, J.; Jia, S. 2013, Makovichy et al. 2009,  Pablo A. Gallina, Sebastián Apesteguía 2015, David C. Evans, Michael J. Ryan 2015, & Beasts of the Mesozoic. </p>
+
+<div id="container">
+
+<div id="picking">
+<ul id="evaluating" class="item-list">
+</ul>
+
+<p id="buttons"><button id="pick">Pick</button> <button id="pass">Pass</button> <button id="undo">Undo</button> <button id="redo">Redo</button> <button id="reset">Reset</button></p>
+</div>
+
+<div id="secondary">
+<h2>Found favorites</h2>
+
+<ol id="favorites" class="item-list">
+</ol>
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="picker.js"></script>
+<script src="picker-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
+<script>
+'use strict';
+
+var items = [
+    {id: 'aardonyx', name: 'Aardonyx', image: 'aardonyx.png'},
+    {id: 'abelisaurus', name: 'Abelisaurus', image: 'abelisaurus.png'},
+    {id: 'acheroraptor', name: 'Acheroraptor', image: 'acheroraptor.png'},
+    {id: 'achillobator', name: 'Achillobator', image: 'achillobator.png'},
+    {id: 'acrocanthosaurus', name: 'Acrocanthosaurus', image: 'acrocanthosaurus.png'},
+    {id: 'alamosaurus', name: 'Alamosaurus', image: 'alamosaurus.png'},
+    {id: 'albertaceratops', name: 'Albertaceratops', image: 'albertaceratops.png'},
+    {id: 'albertosaurus', name: 'Albertosaurus', image: 'albertosaurus.png'},
+    {id: 'alectrosaurus', name: 'Alectrosaurus', image: 'alectrosaurus.png'},
+    {id: 'alioramus', name: 'Alioramus', image: 'alioramus.png'},
+    {id: 'allosaurus', name: 'Allosaurus', image: 'allosaurus.png'},
+    {id: 'alvarezsaurus', name: 'Alvarezsaurus', image: 'alvarezsaurus.png'},
+    {id: 'alxasaurus', name: 'Alxasaurus', image: 'alxasaurus.png'},
+    {id: 'amargasaurus', name: 'Amargasaurus', image: 'amargasaurus.png'},
+    {id: 'ambopteryx', name: 'Ambopteryx', image: 'ambopteryx.png'},
+    {id: 'ampelosaurus', name: 'Ampelosaurus', image: 'ampelosaurus.png'},
+    {id: 'anchiornis', name: 'Anchiornis', image: 'anchiornis.png'},
+    {id: 'anchisaurus', name: 'Anchisaurus', image: 'anchisaurus.png'},
+    {id: 'ankylosaurus', name: 'Ankylosaurus', image: 'ankylosaurus.png'},
+    {id: 'anzu', name: 'Anzu', image: 'anzu.png'},
+    {id: 'apatosaurus', name: 'Apatosaurus', image: 'apatosaurus.png'},
+    {id: 'aquilops', name: 'Aquilops', image: 'aquilops.png'},
+    {id: 'archaeoceratops', name: 'Archaeoceratops', image: 'archaeoceratops.png'},
+    {id: 'archaeopteryx', name: 'Archaeopteryx', image: 'archaeopteryx.png'},
+    {id: 'argentinosaurus', name: 'Argentinosaurus', image: 'argentinosaurus.png'},
+    {id: 'aucasaurus', name: 'Aucasaurus', image: 'aucasaurus.png'},
+    {id: 'aurornis', name: 'Aurornis', image: 'aurornis.png'},
+    {id: 'australovenator', name: 'Australovenator', image: 'australovenator.png'},
+    {id: 'austroraptor', name: 'Austroraptor', image: 'austroraptor.png'},
+    {id: 'avaceratops', name: 'Avaceratops', image: 'avaceratops.png'},
+    {id: 'avimimus', name: 'Avimimus', image: 'avimimus.png'},
+    {id: 'avisaurus', name: 'Avisaurus', image: 'avisaurus.png'},
+    {id: 'bajadasaurus', name: 'Bajadasaurus', image: 'bajadasaurus.png'},
+    {id: 'balaur', name: 'Balaur', image: 'balaur.png'},
+    {id: 'bambiraptor', name: 'Bambiraptor', image: 'bambiraptor.png'},
+    {id: 'barosaurus', name: 'Barosaurus', image: 'barosaurus.png'},
+    {id: 'baryonyx', name: 'Baryonyx', image: 'baryonyx.png'},
+    {id: 'beipiaosaurus', name: 'Beipiaosaurus', image: 'beipiaosaurus.png'},
+    {id: 'beishanlong', name: 'Beishanlong', image: 'beishanlong.png'},
+    {id: 'bistahieversor', name: 'Bistahieversor', image: 'bistahieversor.png'},
+    {id: 'bonitasaura', name: 'Bonitasaura', image: 'bonitasaura.png'},
+    {id: 'borealopelta', name: 'Borealopelta', image: 'borealopelta.png'},
+    {id: 'brachiosaurus', name: 'Brachiosaurus', image: 'brachiosaurus.png'},
+    {id: 'brachylophosaurus', name: 'Brachylophosaurus', image: 'brachylophosaurus.png'},
+    {id: 'brachytrachelopan', name: 'Brachytrachelopan', image: 'brachytrachelopan.png'},
+    {id: 'brontosaurus', name: 'Brontosaurus', image: 'brontosaurus.png'},
+    {id: 'buitreraptor', name: 'Buitreraptor', image: 'buitreraptor.png'},
+    {id: 'buriolestes', name: 'Buriolestes', image: 'buriolestes.png'},
+    {id: 'caihong', name: 'Caihong', image: 'caihong.png'},
+    {id: 'camarasaurus', name: 'Camarasaurus', image: 'camarasaurus.png'},
+    {id: 'camptosaurus', name: 'Camptosaurus', image: 'camptosaurus.png'},
+    {id: 'carcharodontosaurus', name: 'Carcharodontosaurus', image: 'carcharodontosaurus.png'},
+    {id: 'carnotaurus', name: 'Carnotaurus', image: 'carnotaurus.png'},
+    {id: 'caudipteryx', name: 'Caudipteryx', image: 'caudipteryx.png'},
+    {id: 'centrosaurus', name: 'Centrosaurus', image: 'centrosaurus.png'},
+    {id: 'ceratosaurus', name: 'Ceratosaurus', image: 'ceratosaurus.png'},
+    {id: 'chasmosaurus', name: 'Chasmosaurus', image: 'chasmosaurus.png'},
+    {id: 'chilesaurus', name: 'Chilesaurus', image: 'chilesaurus.png'},
+    {id: 'chirostenotes', name: 'Chirostenotes', image: 'chirostenotes.png'},
+    {id: 'citipati', name: 'Citipati', image: 'citipati.png'},
+    {id: 'coelophysis', name: 'Coelophysis', image: 'coelophysis.png'},
+    {id: 'compsognathus', name: 'Compsognathus', image: 'compsognathus.png'},
+    {id: 'concavenator', name: 'Concavenator', image: 'concavenator.png'},
+    {id: 'confuciusornis', name: 'Confuciusornis', image: 'confuciusornis.png'},
+    {id: 'corythosaurus', name: 'Corythosaurus', image: 'corythosaurus.png'},
+    {id: 'cryolophosaurus', name: 'Cryolophosaurus', image: 'cryolophosaurus.png'},
+    {id: 'dacentrurus', name: 'Dacentrurus', image: 'dacentrurus.png'},
+    {id: 'daspletosaurus', name: 'Daspletosaurus', image: 'daspletosaurus.png'},
+    {id: 'deinocheirus', name: 'Deinocheirus', image: 'deinocheirus.png'},
+    {id: 'deinonychus', name: 'Deinonychus', image: 'deinonychus.png'},
+    {id: 'deltadromeus', name: 'Deltadromeus', image: 'deltadromeus.png'},
+    {id: 'diabloceratops', name: 'Diabloceratops', image: 'diabloceratops.png'},
+    {id: 'dicraeosaurus', name: 'Dicraeosaurus', image: 'dicraeosaurus.png'},
+    {id: 'dilong', name: 'Dilong', image: 'dilong.png'},
+    {id: 'dilophosaurus', name: 'Dilophosaurus', image: 'dilophosaurus.png'},
+    {id: 'diplodocus', name: 'Diplodocus', image: 'diplodocus.png'},
+    {id: 'dreadnoughtus', name: 'Dreadnoughtus', image: 'dreadnoughtus.png'},
+    {id: 'dromaeosaurus', name: 'Dromaeosaurus', image: 'dromaeosaurus.png'},
+    {id: 'dryptosaurus', name: 'Dryptosaurus', image: 'dryptosaurus.png'},
+    {id: 'edmontonia', name: 'Edmontonia', image: 'edmontonia.png'},
+    {id: 'edmontosaurus', name: 'Edmontosaurus', image: 'edmontosaurus.png'},
+    {id: 'einosaurus', name: 'Einosaurus', image: 'einosaurus.png'},
+    {id: 'ekrixinatosaurus', name: 'Ekrixinatosaurus', image: 'ekrixinatosaurus.png'},
+    {id: 'elaphrosaurus', name: 'Elaphrosaurus', image: 'elaphrosaurus.png'},
+    {id: 'eocursor', name: 'Eocursor', image: 'eocursor.png'},
+    {id: 'eoraptor', name: 'Eoraptor', image: 'eoraptor.png'},
+    {id: 'eotyrannus', name: 'Eotyrannus', image: 'eotyrannus.png'},
+    {id: 'epidexipteryx', name: 'Epidexipteryx', image: 'epidexipteryx.png'},
+    {id: 'erlikosaurus', name: 'Erlikosaurus', image: 'erlikosaurus.png'},
+    {id: 'euoplocephalus', name: 'Euoplocephalus', image: 'euoplocephalus.png'},
+    {id: 'europasaurus', name: 'Europasaurus', image: 'europasaurus.png'},
+    {id: 'europelta', name: 'Europelta', image: 'europelta.png'},
+    {id: 'eustreptospondylus', name: 'Eustreptospondylus', image: 'eustreptospondylus.png'},
+    {id: 'falcarius', name: 'Falcarius', image: 'falcarius.png'},
+    {id: 'fukuivenator', name: 'Fukuivenator', image: 'fukuivenator.png'},
+    {id: 'futalognkosaurus', name: 'Futalognkosaurus', image: 'futalognkosaurus.png'},
+    {id: 'gallimimus', name: 'Gallimimus', image: 'gallimimus.png'},
+    {id: 'garudimimus', name: 'Garudimimus', image: 'garudimimus.png'},
+    {id: 'gasosaurus', name: 'Gasosaurus', image: 'gasosaurus.png'},
+    {id: 'gastonia', name: 'Gastonia', image: 'gastonia.png'},
+    {id: 'giganotosaurus', name: 'Giganotosaurus', image: 'giganotosaurus.png'},
+    {id: 'gigantoraptor', name: 'Gigantoraptor', image: 'gigantoraptor.png'},
+    {id: 'gigantspinosaurus', name: 'Gigantspinosaurus', image: 'gigantspinosaurus.png'},
+    {id: 'giraffatitan', name: 'Giraffatitan', image: 'giraffatitan.png'},
+    {id: 'gorgosaurus', name: 'Gorgosaurus', image: 'gorgosaurus.png'},
+    {id: 'goyocephale', name: 'Goyocephale', image: 'goyocephale.png'},
+    {id: 'graciliceratops', name: 'Graciliceratops', image: 'graciliceratops.png'},
+    {id: 'gryposaurus', name: 'Gryposaurus', image: 'gryposaurus.png'},
+    {id: 'gualicho', name: 'Gualicho', image: 'gualicho.png'},
+    {id: 'guanlong', name: 'Guanlong', image: 'guanlong.png'},
+    {id: 'halszkaraptor', name: 'Halszkaraptor', image: 'halszkaraptor.png'},
+    {id: 'herrerasaurus', name: 'Herrerasaurus', image: 'herrerasaurus.png'},
+    {id: 'hesperornis', name: 'Hesperornis', image: 'hesperornis.png'},
+    {id: 'hesperosaurus', name: 'Hesperosaurus', image: 'hesperosaurus.png'},
+    {id: 'heterodontosaurus', name: 'Heterodontosaurus', image: 'heterodontosaurus.png'},
+    {id: 'homalocephale', name: 'Homalocephale', image: 'homalocephale.png'},
+    {id: 'huayangosaurus', name: 'Huayangosaurus', image: 'huayangosaurus.png'},
+    {id: 'hypacrosaurus', name: 'Hypacrosaurus', image: 'hypacrosaurus.png'},
+    {id: 'hypsilophodon', name: 'Hypsilophodon', image: 'hypsilophodon.png'},
+    {id: 'ichthyornis', name: 'Ichthyornis', image: 'ichthyornis.png'},
+    {id: 'ichthyovenator', name: 'Ichthyovenator', image: 'ichthyovenator.png'},
+    {id: 'iguanodon', name: 'Iguanodon', image: 'iguanodon.png'},
+    {id: 'incisivosaurus', name: 'Incisivosaurus', image: 'incisivosaurus.png'},
+    {id: 'irritator', name: 'Irritator', image: 'irritator.png'},
+    {id: 'jeholornis', name: 'Jeholornis', image: 'jeholornis.png'},
+    {id: 'jianchangosaurus', name: 'Jianchangosaurus', image: 'jianchangosaurus.png'},
+    {id: 'kentrosaurus', name: 'Kentrosaurus', image: 'kentrosaurus.png'},
+    {id: 'khaan', name: 'Khaan', image: 'khaan.png'},
+    {id: 'kompsornis', name: 'Kompsornis', image: 'kompsornis.png'},
+    {id: 'kosmoceratops', name: 'Kosmoceratops', image: 'kosmoceratops.png'},
+    {id: 'kulindadromeus', name: 'Kulindadromeus', image: 'kulindadromeus.png'},
+    {id: 'kunbarrasaurus', name: 'Kunbarrasaurus', image: 'kunbarrasaurus.png'},
+    {id: 'lambeosaurus', name: 'Lambeosaurus', image: 'lambeosaurus.png'},
+    {id: 'leaellynasaura', name: 'Leaellynasaura', image: 'leaellynasaura.png'},
+    {id: 'leptoceratops', name: 'Leptoceratops', image: 'leptoceratops.png'},
+    {id: 'lesothosaurus', name: 'Lesothosaurus', image: 'lesothosaurus.png'},
+    {id: 'liaoningosaurus', name: 'Liaoningosaurus', image: 'liaoningosaurus.png'},
+    {id: 'limusaurus', name: 'Limusaurus', image: 'limusaurus.png'},
+    {id: 'linhenykus', name: 'Linhenykus', image: 'linhenykus.png'},
+    {id: 'lythronax', name: 'Lythronax', image: 'lythronax.png'},
+    {id: 'machairoceratops', name: 'Machairoceratops', image: 'machairoceratops.png'},
+    {id: 'macrocollum', name: 'Macrocollum', image: 'macrocollum.png'},
+    {id: 'magyarosaurus', name: 'Magyarosaurus', image: 'magyarosaurus.png'},
+    {id: 'maiasaura', name: 'Maiasaura', image: 'maiasaura.png'},
+    {id: 'majungasaurus', name: 'Majungasaurus', image: 'majungasaurus.png'},
+    {id: 'mamenchisaurus', name: 'Mamenchisaurus', image: 'mamenchisaurus.png'},
+    {id: 'mantellisaurus', name: 'Mantellisaurus', image: 'mantellisaurus.png'},
+    {id: 'mapusaurus', name: 'Mapusaurus', image: 'mapusaurus.png'},
+    {id: 'marshosaurus', name: 'Marshosaurus', image: 'marshosaurus.png'},
+    {id: 'masiakasaurus', name: 'Masiakasaurus', image: 'masiakasaurus.png'},
+    {id: 'matheronodon', name: 'Matheronodon', image: 'matheronodon.png'},
+    {id: 'medusaceratops', name: 'Medusaceratops', image: 'medusaceratops.png'},
+    {id: 'megalosaurus', name: 'Megalosaurus', image: 'megalosaurus.png'},
+    {id: 'microraptor', name: 'Microraptor', image: 'microraptor.png'},
+    {id: 'minmi', name: 'Minmi', image: 'minmi.png'},
+    {id: 'miragaia', name: 'Miragaia', image: 'miragaia.png'},
+    {id: 'monolophosaurus', name: 'Monolophosaurus', image: 'monolophosaurus.png'},
+    {id: 'mononykus', name: 'Mononykus', image: 'mononykus.png'},
+    {id: 'muttaburrasaurus', name: 'Muttaburrasaurus', image: 'muttaburrasaurus.png'},
+    {id: 'nanuqsaurus', name: 'Nanuqsaurus', image: 'nanuqsaurus.png'},
+    {id: 'nasutoceratops', name: 'Nasutoceratops', image: 'nasutoceratops.png'},
+    {id: 'neovenator', name: 'Neovenator', image: 'neovenator.png'},
+    {id: 'nigersaurus', name: 'Nigersaurus', image: 'nigersaurus.png'},
+    {id: 'noasaurus', name: 'Noasaurus', image: 'noasaurus.png'},
+    {id: 'nothronychus', name: 'Nothronychus', image: 'nothronychus.png'},
+    {id: 'olorotitan', name: 'Olorotitan', image: 'olorotitan.png'},
+    {id: 'ornitholestes', name: 'Ornitholestes', image: 'ornitholestes.png'},
+    {id: 'ornithomimus', name: 'Ornithomimus', image: 'ornithomimus.png'},
+    {id: 'orodromeus', name: 'Orodromeus', image: 'orodromeus.png'},
+    {id: 'ouranosaurus', name: 'Ouranosaurus', image: 'ouranosaurus.png'},
+    {id: 'oviraptor', name: 'Oviraptor', image: 'oviraptor.png'},
+    {id: 'pachycephalosaurus', name: 'Pachycephalosaurus', image: 'pachycephalosaurus.png'},
+    {id: 'pachyrhinosaurus', name: 'Pachyrhinosaurus', image: 'pachyrhinosaurus.png'},
+    {id: 'panphagia', name: 'Panphagia', image: 'panphagia.png'},
+    {id: 'parasaurolophus', name: 'Parasaurolophus', image: 'parasaurolophus.png'},
+    {id: 'patagotitan', name: 'Patagotitan', image: 'patagotitan.png'},
+    {id: 'pelecanimimus', name: 'Pelecanimimus', image: 'pelecanimimus.png'},
+    {id: 'pentaceratops', name: 'Pentaceratops', image: 'pentaceratops.png'},
+    {id: 'pinacosaurus', name: 'Pinacosaurus', image: 'pinacosaurus.png'},
+    {id: 'pisanosaurus', name: 'Pisanosaurus', image: 'pisanosaurus.png'},
+    {id: 'plateosaurus', name: 'Plateosaurus', image: 'plateosaurus.png'},
+    {id: 'polacanthus', name: 'Polacanthus', image: 'polacanthus.png'},
+    {id: 'prenocephale', name: 'Prenocephale', image: 'prenocephale.png'},
+    {id: 'proceratosaurus', name: 'Proceratosaurus', image: 'proceratosaurus.png'},
+    {id: 'protarchaeopteryx', name: 'Protarchaeopteryx', image: 'protarchaeopteryx.png'},
+    {id: 'protoceratops', name: 'Protoceratops', image: 'protoceratops.png'},
+    {id: 'psittacosaurus', name: 'Psittacosaurus', image: 'psittacosaurus.png'},
+    {id: 'qianzhousaurus', name: 'Qianzhousaurus', image: 'qianzhousaurus.png'},
+    {id: 'rahonavis', name: 'Rahonavis', image: 'rahonavis.png'},
+    {id: 'rajasaurus', name: 'Rajasaurus', image: 'rajasaurus.png'},
+    {id: 'rapetosaurus', name: 'Rapetosaurus', image: 'rapetosaurus.png'},
+    {id: 'regaliceratops', name: 'Regaliceratops', image: 'regaliceratops.png'},
+    {id: 'riojasaurus', name: 'Riojasaurus', image: 'riojasaurus.png'},
+    {id: 'rubeosaurus', name: 'Rubeosaurus', image: 'rubeosaurus.png'},
+    {id: 'rugops', name: 'Rugops', image: 'rugops.png'},
+    {id: 'saltasaurus', name: 'Saltasaurus', image: 'saltasaurus.png'},
+    {id: 'sapeornis', name: 'Sapeornis', image: 'sapeornis.png'},
+    {id: 'saurolophus', name: 'Saurolophus', image: 'saurolophus.png'},
+    {id: 'sauropelta', name: 'Sauropelta', image: 'sauropelta.png'},
+    {id: 'sauroposeidon', name: 'Sauroposeidon', image: 'sauroposeidon.png'},
+    {id: 'saurornitholestes', name: 'Saurornitholestes', image: 'saurornitholestes.png'},
+    {id: 'scansoriopteryx', name: 'Scansoriopteryx', image: 'scansoriopteryx.png'},
+    {id: 'scelidosaurus', name: 'Scelidosaurus', image: 'scelidosaurus.png'},
+    {id: 'sciurumimus', name: 'Sciurumimus', image: 'sciurumimus.png'},
+    {id: 'scutellosaurus', name: 'Scutellosaurus', image: 'scutellosaurus.png'},
+    {id: 'shantungosaurus', name: 'Shantungosaurus', image: 'shantungosaurus.png'},
+    {id: 'shunosaurus', name: 'Shunosaurus', image: 'shunosaurus.png'},
+    {id: 'siats', name: 'Siats', image: 'siats.png'},
+    {id: 'sinocalliopteryx', name: 'Sinocalliopteryx', image: 'sinocalliopteryx.png'},
+    {id: 'sinoceratops', name: 'Sinoceratops', image: 'sinoceratops.png'},
+    {id: 'sinornithosaurus', name: 'Sinornithosaurus', image: 'sinornithosaurus.png'},
+    {id: 'sinosauropteryx', name: 'Sinosauropteryx', image: 'sinosauropteryx.png'},
+    {id: 'sinosaurus', name: 'Sinosaurus', image: 'sinosaurus.png'},
+    {id: 'sinotyrannus', name: 'Sinotyrannus', image: 'sinotyrannus.png'},
+    {id: 'skorpiovenator', name: 'Skorpiovenator', image: 'skorpiovenator.png'},
+    {id: 'spectrovenator', name: 'Spectrovenator', image: 'spectrovenator.png'},
+    {id: 'spiclypeus', name: 'Spiclypeus', image: 'spiclypeus.png'},
+    {id: 'spinosaurus', name: 'Spinosaurus', image: 'spinosaurus.png'},
+    {id: 'staurikosaurus', name: 'Staurikosaurus', image: 'staurikosaurus.png'},
+    {id: 'stegoceras', name: 'Stegoceras', image: 'stegoceras.png'},
+    {id: 'stegosaurus', name: 'Stegosaurus', image: 'stegosaurus.png'},
+    {id: 'stegouros', name: 'Stegouros', image: 'stegouros.png'},
+    {id: 'stenonychosaurus', name: 'Stenonychosaurus', image: 'stenonychosaurus.png'},
+    {id: 'stokesosaurus', name: 'Stokesosaurus', image: 'stokesosaurus.png'},
+    {id: 'struthiomimus', name: 'Struthiomimus', image: 'struthiomimus.png'},
+    {id: 'styracosaurus', name: 'Styracosaurus', image: 'styracosaurus.png'},
+    {id: 'suchomimus', name: 'Suchomimus', image: 'suchomimus.png'},
+    {id: 'supersaurus', name: 'Supersaurus', image: 'supersaurus.png'},
+    {id: 'talararus', name: 'Talararus', image: 'talararus.png'},
+    {id: 'tanycolagreus', name: 'Tanycolagreus', image: 'tanycolagreus.png'},
+    {id: 'tarbosaurus', name: 'Tarbosaurus', image: 'tarbosaurus.png'},
+    {id: 'tarchia', name: 'Tarchia', image: 'tarchia.png'},
+    {id: 'tawa', name: 'Tawa', image: 'tawa.png'},
+    {id: 'teratophoneus', name: 'Teratophoneus', image: 'teratophoneus.png'},
+    {id: 'therizinosaurus', name: 'Therizinosaurus', image: 'therizinosaurus.png'},
+    {id: 'thescelosaurus', name: 'Thescelosaurus', image: 'thescelosaurus.png'},
+    {id: 'tianyulong', name: 'Tianyulong', image: 'tianyulong.png'},
+    {id: 'tianyuraptor', name: 'Tianyuraptor', image: 'tianyuraptor.png'},
+    {id: 'titanoceratops', name: 'Titanoceratops', image: 'titanoceratops.png'},
+    {id: 'torosaurus', name: 'Torosaurus', image: 'torosaurus.png'},
+    {id: 'torvosaurus', name: 'Torvosaurus', image: 'torvosaurus.png'},
+    {id: 'triceratops', name: 'Triceratops', image: 'triceratops.png'},
+    {id: 'tsintaosaurus', name: 'Tsintaosaurus', image: 'tsintaosaurus.png'},
+    {id: 'tuojiangosaurus', name: 'Tuojiangosaurus', image: 'tuojiangosaurus.png'},
+    {id: 'tyrannosaurus', name: 'Tyrannosaurus', image: 'tyrannosaurus.png'},
+    {id: 'udanoceratops', name: 'Udanoceratops', image: 'udanoceratops.png'},
+    {id: 'unenlagia', name: 'Unenlagia', image: 'unenlagia.png'},
+    {id: 'utahceratops', name: 'Utahceratops', image: 'utahceratops.png'},
+    {id: 'utahraptor', name: 'Utahraptor', image: 'utahraptor.png'},
+    {id: 'velociraptor', name: 'Velociraptor', image: 'velociraptor.png'},
+    {id: 'wendiceratops', name: 'Wendiceratops', image: 'wendiceratops.png'},
+    {id: 'wuerhosaurus', name: 'Wuerhosaurus', image: 'wuerhosaurus.png'},
+    {id: 'wulong', name: 'Wulong', image: 'wulong.png'},
+    {id: 'xenoceratops', name: 'Xenoceratops', image: 'xenoceratops.png'},
+    {id: 'xiaotingia', name: 'Xiaotingia', image: 'xiaotingia.png'},
+    {id: 'yangchuanosaurus', name: 'Yangchuanosaurus', image: 'yangchuanosaurus.png'},
+    {id: 'yanornis', name: 'Yanornis', image: 'yanornis.png'},
+    {id: 'yi', name: 'Yi', image: 'yi.png'},
+    {id: 'yinlong', name: 'Yinlong', image: 'yinlong.png'},
+    {id: 'yutyrannus', name: 'Yutyrannus', image: 'yutyrannus.png'},
+    {id: 'zalmoxes', name: 'Zalmoxes', image: 'zalmoxes.png'},
+    {id: 'zhenyuanlong', name: 'Zhenyuanlong', image: 'zhenyuanlong.png'},
+    {id: 'zuniceratops', name: 'Zuniceratops', image: 'zuniceratops.png'},
+    {id: 'zuul', name: 'Zuul', image: 'zuul.png'},
+
+];
+
+var myPicker = new picker.Picker({
+    items: items,
+    localStorageKey: 'picker-state'
+});
+
+var pickerUI = new PickerUI(myPicker, {
+    elements: {
+        pick: "#pick",
+        pass: "#pass",
+        undo: "#undo",
+        redo: "#redo",
+        reset: "#reset",
+        evaluating: "#evaluating",
+        favorites: "#favorites"
+    }
+});
+
+pickerUI.initialize();
+
+/* Sortable favorites - you can safely remove this, and the Sortable.min.js script, if you don't want to be able to sort your favorite list. */
+var sortable = new Sortable(pickerUI.elem.favorites.get(0), {
+    draggable: '.item',
+    animation: 100,
+    onStart: function() {
+        pickerUI.elem.favorites.addClass("sorting");
+    },
+    onEnd: function() {
+        pickerUI.elem.favorites.removeClass("sorting");
+    },
+    onUpdate: function() {
+        myPicker.setFavorites(pickerUI.elem.favorites.children().map(function() {
+            return pickerUI.getItem(this);
+        }).get());
+        pickerUI.update(true);
+    }
+});
+/* End sortable favorites */
+</script>
+</body>
+</html>
